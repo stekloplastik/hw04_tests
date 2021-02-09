@@ -1,12 +1,9 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import get_user_model
 
-from .models import Post, Group
+from .models import Post, Group, User
 from .forms import PostForm
-
-User = get_user_model()
 
 
 def index(request):
@@ -22,7 +19,7 @@ def index(request):
     return render(
          request,
          'index.html',
-         {'page': page, }
+         {'page': page, 'paginator': paginator, }
      )
 
 
@@ -35,7 +32,8 @@ def group_posts(request, slug):
     page = paginator.get_page(page_number)
     context = {
         "group": group,
-        "page": page
+        "page": page,
+        'paginator': paginator,
     }
     return render(request, "group.html", context)
 
@@ -53,24 +51,25 @@ def new_post(request):
 
 
 def profile(request, username):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     posts = user.posts.all()
     paginator = Paginator(posts, 10)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
     context = {
         "page": page,
-        "user": user
+        'paginator': paginator,
+        "author": user,
     }
     return render(request, 'profile.html', context)
 
 
 def post_view(request, username, post_id):
-    user = User.objects.get(username=username)
-    number_post = Post.objects.get(id=post_id)
+    post = get_object_or_404(Post, author__username=username, id=post_id)
+
     context = {
-        "user": user,
-        "number_post": number_post
+        'post': post,
+        'author': post.author,
     }
 
     return render(request, 'post.html', context)
@@ -78,20 +77,22 @@ def post_view(request, username, post_id):
 
 @login_required
 def post_edit(request, username, post_id):
-    author = User.objects.get(username=username)
-    login_user = request.user
-    if login_user != author:
-        return redirect('post_view', username=author, post_id=post_id)
-    post = get_object_or_404(Post, id=post_id, author=author)
-    form = PostForm(request.POST or None, instance=post)
+    post = get_object_or_404(Post, author__username=username, id=post_id)
+    if post.author != request.user:
+        return redirect('post', username=username, post_id=post_id)
+
+    form = PostForm(
+        request.POST or None,
+        instance=post,
+    )
     if form.is_valid():
-        post = form.save()
-        return redirect(
-            'post_view',
-            username=request.user.username,
-            post_id=post_id
-            )
-    return render(request, 'new_post.html', {
+        form.save()
+        return redirect('post', username=username, post_id=post_id)
+
+    context = {
         'form': form,
-        'post': post
-        })
+        'post': post,
+        'is_edit': True,
+    }
+
+    return render(request, 'new_post.html', context)
