@@ -16,11 +16,9 @@ def index(request):
 
     # Получаем набор записей для страницы с запрошенным номером
     page = paginator.get_page(page_number)
-    return render(
-         request,
-         'index.html',
-         {'page': page, 'paginator': paginator, }
-     )
+    return render(request, 'index.html',
+                  {'page': page, 'paginator': paginator, }
+                  )
 
 
 def group_posts(request, slug):

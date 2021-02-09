@@ -89,7 +89,7 @@ class PostModelTest(TestCase):
         """help_text в полях совпадает с ожидаемым."""
         post = PostModelTest.post
         field_help_texts = {
-            'text': 'Напишите,чем вы хотите поделиться с миром',
+            'text': 'Напишите,чем вы хотите поделиться',
             'pub_date': 'Укажите дату',
             'author': 'Укажите автора',
             'group': 'Укажите сообщество',
