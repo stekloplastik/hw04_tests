@@ -79,3 +79,9 @@ class URLTests(TestCase):
         expected = reverse('post', args=[self.user_one, self.test_post.id])
         msg = f'Только у автора должна открываться страница {url}'
         self.assertRedirects(response, expected, msg_prefix=msg)
+
+    def test_404_not_found(self):
+        """Сервер возвращает код 404"""
+        response = self.guest_client.get('/404/')
+        msg = 'Сервер не возвращает код 404 на запрос несуществующей страницы'
+        self.assertEqual(response.status_code, 404, msg)

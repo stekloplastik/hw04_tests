@@ -9,12 +9,11 @@ class GroupModelTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        Group.objects.create(
+        cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-group',
             description='Группа для теста'
         )
-        cls.group = Group.objects.get(slug='test-group')
 
     def test_verbose_name(self):
         """verbose_name в полях совпадает с ожидаемым."""
@@ -57,12 +56,11 @@ class PostModelTest(TestCase):
         User = get_user_model()
         cls.user = User.objects.create()
 
-        Group.objects.create(
+        cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-group',
             description='Группа для теста'
         )
-        cls.group = Group.objects.get(slug='test-group')
 
         Post.objects.create(
             text='Тестовый текст',

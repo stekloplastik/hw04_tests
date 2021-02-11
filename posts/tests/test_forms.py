@@ -33,25 +33,18 @@ class PostFormTests(TestCase):
         msg = 'Форма не добавляет новый пост'
         self.assertEqual(Post.objects.count(), expected, msg)
 
+        response_form_data = response.context['page'].object_list[0]
+        form_text = response_form_data.text
+        form_author = response_form_data.author
+
+        post = Post.objects.latest('id')
+
+        self.assertEqual(form_text, post.text)
+        self.assertEqual(form_author, post.author)
+
         expected = reverse('index')
         msg = 'Форма после добавления поста не редиректит на главную'
         self.assertRedirects(response, expected, msg_prefix=msg)
-
-    # def test_edit_post(self):
-    #     """Форма редактирует пост."""
-    #     form_data = {'text': 'blalalala', }
-    #     response = self.user.post(
-    #         reverse('post_edit', args=[self.user, self.test_post.id]),
-    #         data=form_data,
-    #         follow=True)
-
-    #     self.test_post.refresh_from_db()
-    #     msg = 'Форма не редактирует пост'
-    #     self.assertEqual(self.test_post.text, form_data['text'], msg)
-
-    #     expected = reverse('post', args=[self.user, self.test_post.id])
-    #     msg = 'Форма редактирования поста не редиректит на главную'
-    #     self.assertRedirects(response, expected, msg_prefix=msg)
 
     def test_form_edit_post(self):
         """Валидная форма редактирует запись и производит редирект."""
