@@ -19,6 +19,9 @@ class Post(models.Model):
                               null=True, related_name="posts",
                               verbose_name='Сообщество',
                               help_text='Укажите сообщество')
+    image = models.ImageField(upload_to='posts/', blank=True, null=True,
+                              verbose_name='Изображение',
+                              help_text='Выберите файл изображения',)
 
     def __str__(self):
         return self.text
@@ -39,3 +42,26 @@ class Group(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Пост для комментирования',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор',
+    )
+    text = models.TextField(
+        verbose_name='Комментарий',
+        help_text='Напишите, что вы думаете о теме',
+    )
+    created = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата создания комментария',
+    )
